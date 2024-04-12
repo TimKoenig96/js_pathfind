@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Pathfind Test</title>
+		<link rel="stylesheet" href="style.css" />
+		<script src="script.js" defer></script>
+	</head>
+	<body>
+		<h1 id="instruction">Create Grid</h1>
+		<div id="grid"></div>
+		<hr />
+		<label for="gridsize">Gridsize: </label><input type="number" id="gridsize" min="5" max="1000" /><input type="button" value="Create" id="creategrid" /><br />
+		<div id="control_buttons" class="hidden">
+			<input type="button" id="place_obstacle" value="Place obstacle" />
+			<input type="button" id="place_spawn" value="Place spawn" />
+			<input type="button" id="place_target" value="Place target" /><br />
+			<input type="checkbox" id="use_slowmode"><label for="use_slowmode">Use slow mode</label><br />
+			<input type="button" value="Start" id="start_process" />
+		</div>
+	</body>
+</html>

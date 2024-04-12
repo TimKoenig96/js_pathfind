@@ -1,0 +1,39 @@
+:root {
+	--bg: rgb(100, 100, 100);
+	--borders: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+	--text: rgba(255, 255, 255, 0.6);
+	--grid_size: 700px;
+	--obstacle: rgba(131, 0, 0, 0.3);
+	--visited: rgba(0, 0, 204, 0.3);
+	--path: rgba(0, 204, 0, 0.3);
+}
+
+body {
+	background-color: var(--bg);
+	color: var(--text);
+	font-size: 13px;
+	font-family: Arial, Helvetica, sans-serif;
+	margin: 0px;
+}
+
+h1 { margin: 0px; }
+
+#grid {
+	width: var(--grid_size);
+	height: var(--grid_size);
+	display: grid;
+	grid-template-columns: repeat(var(--cols), calc(var(--grid_size) / var(--cols)));
+	grid-template-rows: repeat(var(--rows), calc(var(--grid_size) / var(--rows)));
+	box-shadow: var(--borders);
+	overflow: none;
+}
+
+.tile { box-shadow: var(--borders); }
+.obstacle { background-color: var(--obstacle); }
+.player { background-image: url("./media/npc.png"); background-size: contain; }
+.target { background-image: url("./media/target.png"); background-size: contain; }
+.visited { background-color: var(--visited); }
+.visited > span.v::after { content: "yes"; }
+:not(.visited) > span.v::after { content: "no"; }
+.path { background-color: var(--path); }
+.hidden { display: none; }
