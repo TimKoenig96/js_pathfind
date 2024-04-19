@@ -8,16 +8,21 @@
 		<script src="script.js" defer></script>
 	</head>
 	<body>
-		<h1 id="instruction">Create Grid</h1>
-		<div id="grid"></div>
-		<hr />
-		<label for="gridsize">Gridsize: </label><input type="number" id="gridsize" min="5" max="1000" /><input type="button" value="Create" id="creategrid" /><br />
-		<div id="control_buttons" class="hidden">
-			<input type="button" id="place_obstacle" value="Place obstacle" />
-			<input type="button" id="place_spawn" value="Place spawn" />
-			<input type="button" id="place_target" value="Place target" /><br />
-			<input type="checkbox" id="use_slowmode"><label for="use_slowmode">Use slow mode</label><br />
-			<input type="button" value="Start" id="start_process" />
+		<div>
+			<h1 id="instruction">Create Grid</h1>
+			<div id="grid"></div>
+		</div>
+		<div>
+			<input type="button" value="Reset all" id="reset" /><br /><br />
+			<label for="gridsize">Gridsize: </label><input type="number" id="gridsize" min="5" max="1000" placeholder="5-1000" /><input type="button" value="Create" id="creategrid" /><br />
+			<div id="control_buttons" class="hidden">
+				<input type="button" id="place_obstacle" value="Place obstacle" />
+				<input type="button" id="place_spawn" value="Place spawn" />
+				<input type="button" id="place_target" value="Place target" /><br />
+				<label for="timer">Milliseconds between actions (<span id="ms_between_actions">250</span>ms)</label><br />
+				<input type="range" id="timer" min="0" max="1000" value="250" steps="1" /><br />
+				<input type="button" value="Start" id="start_process" />
+			</div>
 		</div>
 	</body>
 </html>

@@ -1,7 +1,6 @@
-// Originally ~700ms for 100x100
-
 // #region | Elements
 const grid_container = document.getElementById("grid");
+const reset_btn = document.getElementById("reset");
 const creategrid_btn = document.getElementById("creategrid");
 const control_btns = document.getElementById("control_buttons");
 const instruction_element = document.getElementById("instruction");
@@ -9,6 +8,8 @@ const place_obstacle_btn = document.getElementById("place_obstacle");
 const place_spawn_btn = document.getElementById("place_spawn");
 const place_target_btn = document.getElementById("place_target");
 const start_process_btn = document.getElementById("start_process");
+const timer_slider = document.getElementById("timer");
+const ms_between_actions = document.getElementById("ms_between_actions");
 // #endregion
 
 
@@ -21,6 +22,11 @@ let player_start;
 let player_target;
 
 let obstacles;
+
+const initial_values = {
+	gridsize: "",
+	timer: 250
+};
 // #endregion
 
 
@@ -32,16 +38,7 @@ function sleep(ms) {
 
 // Clicked on tile
 function handleTileClick(event) {
-	if (mode === "obstacle") {
-		if (event.target.id === player_start || event.target.id === player_target) return;
-		if (event.target.classList.contains("obstacle")) {
-			event.target.classList.remove("obstacle");
-			obstacles.delete(event.target.id);
-		} else {
-			event.target.classList.add("obstacle");
-			obstacles.set(event.target.id);
-		}
-	} else if (mode === "spawn") {
+	if (mode === "spawn") {
 		if (event.target.classList.contains("obstacle") || event.target.id === player_target) return;
 		if (player_start) document.getElementById(player_start).classList.remove("player");
 		event.target.classList.add("player");
@@ -93,7 +90,7 @@ function initializeGrid() {
 }
 
 // Try to find a path between the start and the target
-async function pathfind(start, target, wait) {
+async function pathfind(start, target) {
 	const bmstart = performance.now();
 	const visited = new Map(); // obj of coord strings
 	const queue = new Map(); // obj of coord strings
@@ -105,7 +102,7 @@ async function pathfind(start, target, wait) {
 	// Start the loop to continuously check the next queued tile
 	while (queue.size > 0) {
 
-		if (wait) await sleep(250);
+		await sleep(Number(timer_slider.value));
 
 		// Get 0th queued tile
 		const current_tile = queue.keys().next().value; // Is a string (for example "5_-3")
@@ -116,7 +113,7 @@ async function pathfind(start, target, wait) {
 			document.getElementById(current_tile).classList.add("visited");
 			const end = performance.now();
 			console.log(`Finding a path took ${end - bmstart}ms.`);
-			return reconstructPath(parent, start, target, wait);
+			return reconstructPath(parent, start, target);
 		}
 
 		// Convert the string into two coordinates for calculations
@@ -185,13 +182,13 @@ async function pathfind(start, target, wait) {
 }
 
 // Reconstructing the path that was found
-async function reconstructPath(parent, start, target, wait) {
+async function reconstructPath(parent, start, target) {
 	const bmstart = performance.now();
 	let last_tile;
 	const path = [];
 	while (last_tile !== start) {
 
-		if (wait) await sleep(250);
+		await sleep(Number(timer_slider.value));
 
 		// Get path tile accoring to parents object
 		const path_tile = (last_tile ? parent[last_tile] : parent[target]);
@@ -210,29 +207,72 @@ async function reconstructPath(parent, start, target, wait) {
 
 	return path;
 }
+
+function startObstacleDrag(event) {
+	const start_tile = event.target;
+	mode = start_tile.classList.contains("obstacle") ? "clear_obstacles" : "set_obstacles";
+
+	if (!start_tile.classList.contains("player") && !start_tile.classList.contains("target")) {
+		if (mode === "clear_obstacles" && start_tile.classList.contains("obstacle")) {
+			start_tile.classList.remove("obstacle");
+			obstacles.delete(start_tile.id);
+		} else if (mode === "set_obstacles" && !start_tile.classList.contains("obstacle")) {
+			start_tile.classList.add("obstacle");
+			obstacles.set(start_tile.id);
+		}
+	}
+
+	grid_container.addEventListener("mousemove", obstacleDrag);
+	document.body.addEventListener("mouseup", stopObstacleDrag);
+}
+
+function obstacleDrag(event) {
+	const target_tile = event.target;
+	if (!target_tile.classList.contains("player") && !target_tile.classList.contains("target")) {
+		if (mode === "clear_obstacles" && target_tile.classList.contains("obstacle")) {
+			target_tile.classList.remove("obstacle");
+			obstacles.delete(target_tile.id);
+		} else if (mode === "set_obstacles" && !target_tile.classList.contains("obstacle")) {
+			target_tile.classList.add("obstacle");
+			obstacles.set(target_tile.id);
+		}
+	}
+}
+
+function stopObstacleDrag(event) {
+	grid_container.removeEventListener("mousemove", obstacleDrag);
+	document.body.removeEventListener("mouseup", stopObstacleDrag);
+}
 // #endregion
 
 
 // #region | Event listeners
+reset_btn.addEventListener("click", () => {
+	for (const [k, v] of Object.entries(initial_values)) {
+		document.getElementById(k).value = v;
+	}
+	window.location.reload();
+});
+timer_slider.addEventListener("input", () => {
+	ms_between_actions.textContent = timer_slider.value;
+});
 creategrid_btn.addEventListener("click", initializeGrid);
 place_obstacle_btn.addEventListener("click", () => {
-	mode = "obstacle";
-	instruction_element.innerText = "Place obstacles";
+	grid_container.addEventListener("mousedown", startObstacleDrag);
 });
 place_spawn_btn.addEventListener("click", () => {
 	mode = "spawn";
 	instruction_element.innerText = "Place spawn";
+	grid_container.removeEventListener("mousedown", startObstacleDrag);
 });
 place_target_btn.addEventListener("click", () => {
 	mode = "target";
-	instruction_element.innerText = "Place targets";
+	instruction_element.innerText = "Place target";
+	grid_container.removeEventListener("mousedown", startObstacleDrag);
 });
 start_process_btn.addEventListener("click", () => {
 	if (!player_start || !player_target) return;
-	pathfind(player_start, player_target, document.getElementById("use_slowmode").checked);
+	pathfind(player_start, player_target);
+	grid_container.removeEventListener("mousedown", startObstacleDrag);
 });
 // #endregion
-
-
-// Find a path from here to there
-// pathfind(player_start, player_target);
